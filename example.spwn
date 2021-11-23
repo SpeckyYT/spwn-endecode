@@ -1,0 +1,28 @@
+endecode = import '.'
+
+for text in [
+    'Ml',
+    'L17',
+    'NiX',
+    'PoNoOa',
+    'f1l11',
+    'onO',
+    'Bf',
+    'GUMT4Xt',
+    'YAHI',
+    'S4XXA',
+    'yor',
+    'cacB',
+    'caC2',
+] {
+    input = text
+    $.print(input)
+
+    output = endecode(input)
+    $.print(output)
+
+    new_output = endecode(output)
+    $.assert(new_output == input)
+
+    $.print()
+}

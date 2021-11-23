@@ -1,0 +1,101 @@
+// Based on https://github.com/SpeckyYT/specky-endecode
+
+endecode = (
+    input: @string = '',
+    characters: @string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+) {
+    let all_chars = characters.split('') // .unique()
+    if all_chars.length % 2 > 0 { all_chars.pop() }
+
+    let all_chars_cache = all_chars
+
+    let set1 = []
+    let set2 = []
+
+    // STABLE SHUFFLER
+    while all_chars_cache.length > 0 {
+        index = $.floor(
+            (
+                (all_chars_cache.length - all_chars.length) * 3 +
+                all_chars_cache.length / 2
+            ) % all_chars_cache.length
+        )
+
+        if set1.length <= set2.length {
+            set1.push(all_chars_cache.pop(index))
+        } else {
+            set2.push(all_chars_cache.pop(index))
+        }
+    }
+
+    contains = (char: @string) => set1 has char || set2 has char
+    get_index = (char: @string) => set1.index(char) if set1.contains(char) else set2.index(char)
+    get_opposite = (char: @string) {
+        if set1.contains(char) {
+            return set2[set1.index(char)]
+        } else {
+            return set1[set2.index(char)]
+        }
+    }
+    mod = (number: @number = 0) => $.floor($.abs(number)) % set1.length
+    swap = (index_1: @number = 0, index_2: @number = 0) {
+        first = mod(index_1)
+        second = mod(index_2)
+        [set1[first],set2[second]] = [set2[second],set1[first]]
+    }
+    backward = (&array: @array) {
+        array.unshift(array[array.length-1])
+        array.pop()
+    }
+    forward = (&array: @array) {
+        array.push(array[0])
+        array.shift()
+    }
+    real_length = input.split('').filter(c => contains(c)).length
+
+    for i in 0..(real_length + 10) {
+        forward(set1) if i % 2 == 0 else backward(set2)
+        swap(0, i+1)
+        swap(1, i*2)
+        swap(2, i^1.2)
+        swap(3, 0)
+    }
+
+    let output = ''
+    let i = 0
+    for index in 0..input.length {
+        if !contains(input[index]) {
+            output += input[index]
+            continue
+        }
+
+        forward(set1)
+        if i % 4 > 0 {
+            backward(set2)
+        } else {
+            forward(set2)
+        }
+
+        output += get_opposite(input[index])
+
+        current_index = get_index(input[index])
+
+        // chaos generator (premium edition)
+        for s in 1..(current_index+5) {
+            swap(s*2, i)
+            swap(s*1.5, i*2)
+            swap(s^1.5, s*i)
+            swap(s+3, s+5)
+            swap(s/2, s/3)
+            swap(s*2.5, current_index-1)
+            swap(1, current_index-2)
+            swap(2, current_index-3)
+        }
+
+        i++
+    }
+
+    return output
+}
+
+return endecode
